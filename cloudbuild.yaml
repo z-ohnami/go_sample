@@ -1,7 +1,7 @@
 steps:
   - name: "gcr.io/cloud-builders/go"
-    args: ["install", "github.com:z-ohnami/go_sample.git"]
-    env: ["PROJECT_ROOT=github.com:z-ohnami/go_sample.git"]
+    args: ["install", "github.com/go_sample"]
+    env: ["PROJECT_ROOT=github.com/go_sample"]
   - name: "gcr.io/cloud-builders/docker"
     args: ["build", "-t", "gcr.io/spinnaker-sample/go_samle:$REVISION_ID", "-f", "Dockerfile", "."]
 images:
