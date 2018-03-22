@@ -1,0 +1,18 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 2
+  template: # 起動する Pod の設定テンプレート
+    metadata:
+      # kubectl コマンドや Service などから Pod を参照する際にこのラベルを使って絞り込むことができる
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: go-sample
+          image: gcr.io/ci-sample-198806/go_sample:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
