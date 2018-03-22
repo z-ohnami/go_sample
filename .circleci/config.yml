@@ -31,7 +31,7 @@ jobs:
       PROJECT_ID: ci-sample-198806
       CLUSTER_NAME: cluster-app
       COMPUTE_ZONE: asia-northeast1-a
-    working_directory: /tmp/my-project
+    # working_directory: /tmp/my-project
     docker:
       - image: google/cloud-sdk
     steps:
