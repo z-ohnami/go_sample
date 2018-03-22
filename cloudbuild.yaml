@@ -3,6 +3,8 @@ steps:
     args: ["install", "github.com/go_sample"]
     env: ["PROJECT_ROOT=github.com/go_sample"]
   - name: "gcr.io/cloud-builders/docker"
-    args: ["build", "-t", "gcr.io/ci-sample-198806/go_sample:v1", "-f", "Dockerfile", "."]
+    args: ["build", "-t", "gcr.io/ci-sample-198806/go_sample:${REVISION_ID}", "-f", "Dockerfile", "."]
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["tag", "us.gcr.io/ci-sample-198806/go_sample:${REVISION_ID}", "gcr.io/ci-sample-198806/go_sample:latest"]
 images:
-  - "gcr.io/ci-sample-198806/go_sample:v1"
+  - "gcr.io/ci-sample-198806/go_sample:${REVISION_ID}"
