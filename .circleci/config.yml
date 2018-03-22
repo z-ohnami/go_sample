@@ -45,8 +45,8 @@ jobs:
       - run: gcloud --quiet config set project ${PROJECT_ID}
       - run: gcloud --quiet config set compute/zone ${COMPUTE_ZONE}
       - run: gcloud --quiet container clusters get-credentials ${CLUSTER_NAME}
-      - run: docker build -t us.gcr.io/${PROJECT_ID}/go_sample:$CIRCLE_SHA1 .
-      - run: docker tag us.gcr.io/${PROJECT_ID}/hello:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/go_sample:latest
+      - run: gcloud docker build -t us.gcr.io/${PROJECT_ID}/go_sample:$CIRCLE_SHA1 .
+      - run: gcloud docker tag us.gcr.io/${PROJECT_ID}/hello:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/go_sample:latest
       - run: gcloud docker push us.gcr.io/${PROJECT_ID}/go_sample
       - run: kubectl patch deployment web -p '{"spec":{"template":{"spec":{"containers":[{"name":"go-sample","image":"us.gcr.io/ci-sample-198806/go_sample:'"$CIRCLE_SHA1"'"}]}}}}'
       # - run:
