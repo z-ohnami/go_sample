@@ -30,7 +30,7 @@ jobs:
     environment:
       PROJECT_ID: ci-sample-198806
       CLUSTER_NAME: cluster-app
-      CLOUDSDK_COMPUTE_ZONE: asia-northeast1-a
+      COMPUTE_ZONE: asia-northeast1-a
     working_directory: /tmp/my-project
     docker:
       - image: google/cloud-sdk
@@ -39,11 +39,11 @@ jobs:
           name: Decode and Store Service Account
           command: echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
       # - run: sudo apt-get update && sudo apt-get --only-upgrade install kubectl google-cloud-sdk google-cloud-sdk-app-engine-grpc google-cloud-sdk-pubsub-emulator google-cloud-sdk-app-engine-go google-cloud-sdk-datastore-emulator google-cloud-sdk-app-engine-python google-cloud-sdk-cbt google-cloud-sdk-bigtable-emulator google-cloud-sdk-app-engine-python-extras google-cloud-sdk-datalab google-cloud-sdk-app-engine-java
-      - run: gcloud --quiet components update
+      # - run: gcloud --quiet components update
       - run: gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-      - run: gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-      - run: gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
-      - run: gcloud --quiet container clusters get-credentials ${GOOGLE_CLUSTER_NAME}
+      - run: gcloud --quiet config set project ${PROJECT_ID}
+      - run: gcloud --quiet config set compute/zone ${COMPUTE_ZONE}
+      - run: gcloud --quiet container clusters get-credentials ${CLUSTER_NAME}
       - run: docker build -t us.gcr.io/${PROJECT_ID}/go_sample:$CIRCLE_SHA1 .
       - run: docker tag us.gcr.io/${PROJECT_ID}/hello:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/go_sample:latest
       - run:
