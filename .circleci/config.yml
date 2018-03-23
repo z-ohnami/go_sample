@@ -14,7 +14,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - run: TAG_NAME=`git describe --tags`
+      - run: export TAG_NAME=`git describe --tags`
       - run: echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
       - run: gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
       - run: gcloud --quiet config set project ${PROJECT_ID}
@@ -24,7 +24,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - run: TAG_NAME=`git describe --tags`
+      - run: export TAG_NAME=`git describe --tags`
       - run: echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
       - run: gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
       - run: gcloud --quiet config set project ${PROJECT_ID}
@@ -35,7 +35,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - run: TAG_NAME=`git describe --tags`
+      - run: export TAG_NAME=`git describe --tags`
       - run: echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
       - run: gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
       - run: gcloud --quiet config set project ${PROJECT_ID}
