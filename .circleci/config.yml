@@ -52,6 +52,7 @@ jobs:
     steps:
       <<: *default_steps
       <<: *deploy_steps
+
 workflows:
   version: 2
   build-deploy:
