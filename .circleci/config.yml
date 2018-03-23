@@ -8,6 +8,13 @@ defaults: &defaults
   docker:
     - image: google/cloud-sdk
 
+default_filters: &default_filters
+  filters:
+    branches:
+      ignore: /.*/
+    tags:
+      only: /^\d\d\d\d\d\d\d\d\_\d*/
+
 version: 2
 jobs:
   build:
@@ -47,18 +54,17 @@ workflows:
   build-deploy:
     jobs:
       - build:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^\d\d\d\d\d\d\d\d\_\d*/
+          <<: *defaults
       - deploy-staging:
           requires:
             - build
+          <<: *defaults
       - hold:
           type: approval
           requires:
-           - deploy-staging
+            - deploy-staging
+          <<: *defaults
       - deploy-production:
           requires:
             - hold
+          <<: *defaults
