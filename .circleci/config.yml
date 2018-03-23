@@ -1,12 +1,10 @@
-defaults: &defaults
-  environment:
-    PROJECT_ID: build-images
-    STAGING_CLUSTER_PROJECT_ID: ci-staging-198906
-    PRODUCTION_CLUSTER_PROJECT_ID: ci-sample-198806
-    CLUSTER_NAME: cluster-app
-    COMPUTE_ZONE: asia-northeast1-a
-  docker:
-    - image: google/cloud-sdk
+default_environments: &default_environments
+  PROJECT_ID: build-images
+  CLUSTER_NAME: cluster-app
+  COMPUTE_ZONE: asia-northeast1-a
+
+default_images: &default_images
+  - image: google/cloud-sdk
 
 default_filters: &default_filters
   filters:
@@ -15,40 +13,46 @@ default_filters: &default_filters
     tags:
       only: /^\d\d\d\d\d\d\d\d\_\d*/
 
+default_steps: &default_steps
+  - checkout
+  - run: echo 'export TAG_NAME=`git describe --tags`' >> $BASH_ENV
+  - run: echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
+  - run: gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+  - run: gcloud --quiet config set project ${PROJECT_ID}
+  - run: gcloud --quiet config set compute/zone ${COMPUTE_ZONE}
+
+deploy_steps: &deploy_steps
+  - run: gcloud --quiet container clusters get-credentials --project ${CLUSTER_PROJECT_ID} ${CLUSTER_NAME}
+  - run: kubectl patch deployment web -p '{"spec":{"template":{"spec":{"containers":[{"name":"go-sample","image":"gcr.io/build-images/go_sample:'"$TAG_NAME"'"}]}}}}'
+
 version: 2
 jobs:
   build:
-    <<: *defaults
+    environment:
+      <<: *default_environments
+    docker:
+      <<: *default_images
     steps:
-      - checkout
-      - run: echo 'export TAG_NAME=`git describe --tags`' >> $BASH_ENV
-      - run: echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
-      - run: gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-      - run: gcloud --quiet config set project ${PROJECT_ID}
-      - run: gcloud --quiet config set compute/zone ${COMPUTE_ZONE}
+      <<: *default_steps
       - run: gcloud container builds submit --config=cloudbuild.yaml --substitutions REVISION_ID=$TAG_NAME .
   deploy-staging:
-    <<: *defaults
+    environment:
+      <<: *default_environments
+      CLUSTER_PROJECT_ID: ci-staging-198906
+    docker:
+      <<: *default_images
     steps:
-      - checkout
-      - run: echo 'export TAG_NAME=`git describe --tags`' >> $BASH_ENV
-      - run: echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
-      - run: gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-      - run: gcloud --quiet config set project ${PROJECT_ID}
-      - run: gcloud --quiet config set compute/zone ${COMPUTE_ZONE}
-      - run: gcloud --quiet container clusters get-credentials --project ${STAGING_CLUSTER_PROJECT_ID} ${CLUSTER_NAME}
-      - run: kubectl patch deployment web -p '{"spec":{"template":{"spec":{"containers":[{"name":"go-sample","image":"gcr.io/build-images/go_sample:'"$TAG_NAME"'"}]}}}}'
+      <<: *default_steps
+      <<: *deploy_steps
   deploy-production:
-    <<: *defaults
+    environment:
+      <<: *default_environments
+      CLUSTER_PROJECT_ID: ci-sample-198806
+    docker:
+      <<: *default_images
     steps:
-      - checkout
-      - run: echo 'export TAG_NAME=`git describe --tags`' >> $BASH_ENV
-      - run: echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
-      - run: gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-      - run: gcloud --quiet config set project ${PROJECT_ID}
-      - run: gcloud --quiet config set compute/zone ${COMPUTE_ZONE}
-      - run: gcloud --quiet container clusters get-credentials --project ${PRODUCTION_CLUSTER_PROJECT_ID} ${CLUSTER_NAME}
-      - run: kubectl patch deployment web -p '{"spec":{"template":{"spec":{"containers":[{"name":"go-sample","image":"gcr.io/build-images/go_sample:'"$TAG_NAME"'"}]}}}}'
+      <<: *default_steps
+      <<: *deploy_steps
 workflows:
   version: 2
   build-deploy:
