@@ -33,26 +33,26 @@ jobs:
     docker:
       - *default_images
     steps:
-      - *default_steps
+      [*default_steps]
       - run: gcloud container builds submit --config=cloudbuild.yaml --substitutions REVISION_ID=$TAG_NAME .
-  deploy-staging:
-    environment:
-      <<: *default_environments
-      CLUSTER_PROJECT_ID: ci-staging-198906
-    docker:
-      - *default_images
-    steps:
-      - *default_steps
-      - *deploy_steps
-  deploy-production:
-    environment:
-      <<: *default_environments
-      CLUSTER_PROJECT_ID: ci-sample-198806
-    docker:
-      - *default_images
-    steps:
-      - *default_steps
-      - *deploy_steps
+  # deploy-staging:
+  #   environment:
+  #     <<: *default_environments
+  #     CLUSTER_PROJECT_ID: ci-staging-198906
+  #   docker:
+  #     - *default_images
+  #   steps:
+  #     - *default_steps
+  #     - *deploy_steps
+  # deploy-production:
+  #   environment:
+  #     <<: *default_environments
+  #     CLUSTER_PROJECT_ID: ci-sample-198806
+  #   docker:
+  #     - *default_images
+  #   steps:
+  #     - *default_steps
+  #     - *deploy_steps
 
 workflows:
   version: 2
