@@ -64,8 +64,8 @@ workflows:
     jobs:
       - deploy-job:
           filters:
-            branches:
-              only: master
+            tags:
+              only: /^\d\d\d\d\d\d\d\d\_\d*/
 
 # machine:
 #   environment:
