@@ -28,7 +28,8 @@ version: 2
 jobs:
   deploy-job:
     environment:
-      PROJECT_ID: ci-sample-198806
+      PROJECT_ID: build-images
+      CLUSTER_PROJECT_ID: ci-sample-198806
       CLUSTER_NAME: cluster-app
       COMPUTE_ZONE: asia-northeast1-a
     # working_directory: /tmp/go_sample
@@ -44,13 +45,14 @@ jobs:
       - run: gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
       - run: gcloud --quiet config set project ${PROJECT_ID}
       - run: gcloud --quiet config set compute/zone ${COMPUTE_ZONE}
-      - run: gcloud --quiet container clusters get-credentials ${CLUSTER_NAME}
       # - run: gcloud docker build -t us.gcr.io/${PROJECT_ID}/go_sample:$CIRCLE_SHA1 .
       # - run: gcloud docker tag us.gcr.io/${PROJECT_ID}/hello:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/go_sample:latest
       # - run: gcloud docker push us.gcr.io/${PROJECT_ID}/go_sample
-      - run: gcloud --quiet config set project build-images
+      - run: gcloud --quiet config set project ${PROJECT_ID}
       - run: gcloud --quiet config set compute/zone ${COMPUTE_ZONE}
       - run: gcloud container builds submit --config=cloudbuild.yaml --substitutions REVISION_ID=$CIRCLE_SHA1 .
+
+      - run: gcloud --quiet container clusters get-credentials --project ${CLUSTER_PROJECT_ID} ${CLUSTER_NAME}
       - run: kubectl patch deployment web -p '{"spec":{"template":{"spec":{"containers":[{"name":"go-sample","image":"gcr.io/build-images/go_sample:'"$CIRCLE_SHA1"'"}]}}}}'
       # - run:
       #     name: Deploy Master to GKE
