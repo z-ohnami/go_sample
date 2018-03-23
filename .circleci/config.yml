@@ -48,6 +48,8 @@ jobs:
       # - run: gcloud docker build -t us.gcr.io/${PROJECT_ID}/go_sample:$CIRCLE_SHA1 .
       # - run: gcloud docker tag us.gcr.io/${PROJECT_ID}/hello:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/go_sample:latest
       # - run: gcloud docker push us.gcr.io/${PROJECT_ID}/go_sample
+      - run: gcloud --quiet config set project build-images
+      - run: gcloud --quiet config set compute/zone ${COMPUTE_ZONE}
       - run: gcloud container builds submit --config=cloudbuild.yaml --substitutions REVISION_ID=$CIRCLE_SHA1 .
       - run: kubectl patch deployment web -p '{"spec":{"template":{"spec":{"containers":[{"name":"go-sample","image":"gcr.io/build-images/go_sample:'"$CIRCLE_SHA1"'"}]}}}}'
       # - run:
