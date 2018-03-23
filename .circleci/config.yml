@@ -54,17 +54,17 @@ workflows:
   build-deploy:
     jobs:
       - build:
-          <<: *defaults
+          <<: *default_filters
       - deploy-staging:
           requires:
             - build
-          <<: *defaults
+          <<: *default_filters
       - hold:
           type: approval
           requires:
             - deploy-staging
-          <<: *defaults
+          <<: *default_filters
       - deploy-production:
           requires:
             - hold
-          <<: *defaults
+          <<: *default_filters
