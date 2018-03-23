@@ -64,6 +64,8 @@ workflows:
     jobs:
       - deploy-job:
           filters:
+            branches:
+              ignore: /.*/
             tags:
               only: /^\d\d\d\d\d\d\d\d\_\d*/
 
