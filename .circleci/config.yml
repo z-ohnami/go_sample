@@ -8,12 +8,12 @@ default_images: &default_images
 
 default_filters: &default_filters
   branches:
-    only: master
-    # ignore: /.*/
-  # tags:
-  #   only: /^\d\d\d\d\d\d\d\d\_\d*/
+    # only: master
+    ignore: /.*/
+  tags:
+    only: /^\d\d\d\d\d\d\d\d\_\d*/
 
-setup_command: &setup_command
+setup_commands: &setup_commands
   command: |
     echo 'export TAG_NAME=`git describe --tags`' >> $BASH_ENV
     echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
@@ -21,17 +21,10 @@ setup_command: &setup_command
     gcloud --quiet config set project ${PROJECT_ID}
     gcloud --quiet config set compute/zone ${COMPUTE_ZONE}
 
-# default_steps: &default_steps
-#   - checkout
-#   - run: echo 'export TAG_NAME=`git describe --tags`' >> $BASH_ENV
-#   - run: echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
-#   - run: gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-#   - run: gcloud --quiet config set project ${PROJECT_ID}
-#   - run: gcloud --quiet config set compute/zone ${COMPUTE_ZONE}
-
-deploy_steps: &deploy_steps
-  - run: gcloud --quiet container clusters get-credentials --project ${CLUSTER_PROJECT_ID} ${CLUSTER_NAME}
-  - run: kubectl patch deployment web -p '{"spec":{"template":{"spec":{"containers":[{"name":"go-sample","image":"gcr.io/build-images/go_sample:'"$TAG_NAME"'"}]}}}}'
+deploy_commands: &deploy_commands
+  command: |
+    gcloud --quiet container clusters get-credentials --project ${CLUSTER_PROJECT_ID} ${CLUSTER_NAME}
+    kubectl patch deployment web -p '{"spec":{"template":{"spec":{"containers":[{"name":"go-sample","image":"gcr.io/build-images/go_sample:'"$TAG_NAME"'"}]}}}}'
 
 version: 2
 jobs:
@@ -43,26 +36,32 @@ jobs:
     steps:
       - checkout
       - run:
-          <<: *setup_command
+          <<: *setup_commands
       - run: gcloud container builds submit --config=cloudbuild.yaml --substitutions REVISION_ID=$TAG_NAME .
-  # deploy-staging:
-  #   environment:
-  #     <<: *default_environments
-  #     CLUSTER_PROJECT_ID: ci-staging-198906
-  #   docker:
-  #     - *default_images
-  #   steps:
-  #     - *default_steps
-  #     - *deploy_steps
-  # deploy-production:
-  #   environment:
-  #     <<: *default_environments
-  #     CLUSTER_PROJECT_ID: ci-sample-198806
-  #   docker:
-  #     - *default_images
-  #   steps:
-  #     - *default_steps
-  #     - *deploy_steps
+  deploy-staging:
+    environment:
+      <<: *default_environments
+      CLUSTER_PROJECT_ID: ci-staging-198906
+    docker:
+      *default_images
+    steps:
+      - checkout
+      - run:
+          <<: *setup_commands
+      - run:
+          <<: *deploy_commands
+  deploy-production:
+    environment:
+      <<: *default_environments
+      CLUSTER_PROJECT_ID: ci-sample-198806
+    docker:
+      *default_images
+    steps:
+      - checkout
+      - run:
+          <<: *setup_commands
+      - run:
+          <<: *deploy_commands
 
 workflows:
   version: 2
@@ -71,19 +70,19 @@ workflows:
       - build:
           filters:
             <<: *default_filters
-      # - deploy-staging:
-      #     requires:
-      #       - build
-      #     filters:
-      #       <<: *default_filters
-      # - hold:
-      #     type: approval
-      #     requires:
-      #       - deploy-staging
-      #     filters:
-      #       <<: *default_filters
-      # - deploy-production:
-      #     requires:
-      #       - hold
-      #     filters:
-      #       <<: *default_filters
+      - deploy-staging:
+          requires:
+            - build
+          filters:
+            <<: *default_filters
+      - hold:
+          type: approval
+          requires:
+            - deploy-staging
+          filters:
+            <<: *default_filters
+      - deploy-production:
+          requires:
+            - hold
+          filters:
+            <<: *default_filters

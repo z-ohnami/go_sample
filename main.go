@@ -6,7 +6,7 @@ import (
 )
 
 func hello(w http.ResponseWriter, r *http.Request) {
-    io.WriteString(w, "変更管理を短くし、構成管理をなくす")
+    io.WriteString(w, "変更管理を短くし、構成管理をなくす。内部統制は消去する。")
 }
 
 func main() {
