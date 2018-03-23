@@ -31,9 +31,9 @@ jobs:
     environment:
       <<: *default_environments
     docker:
-      - *default_images
+      <<: *default_images
     steps:
-      *default_steps
+      <<: *default_steps
   build:
     environment:
       <<: *default_environments
