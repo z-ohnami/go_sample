@@ -33,7 +33,7 @@ jobs:
     docker:
       - *default_images
     steps:
-      [*default_steps]
+      *default_steps
       - run: gcloud container builds submit --config=cloudbuild.yaml --substitutions REVISION_ID=$TAG_NAME .
   # deploy-staging:
   #   environment:
