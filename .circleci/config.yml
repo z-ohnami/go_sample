@@ -7,11 +7,11 @@ default_images: &default_images
   - image: google/cloud-sdk
 
 default_filters: &default_filters
-  filters:
-    branches:
-      ignore: /.*/
-    tags:
-      only: /^\d\d\d\d\d\d\d\d\_\d*/
+  branches:
+    only: master
+    # ignore: /.*/
+  # tags:
+  #   only: /^\d\d\d\d\d\d\d\d\_\d*/
 
 default_steps: &default_steps
   - checkout
@@ -59,20 +59,21 @@ workflows:
   build-deploy:
     jobs:
       - build:
-          <<: *default_filters
-      - deploy-staging:
-          requires:
-            - build
           filters:
             <<: *default_filters
-      - hold:
-          type: approval
-          requires:
-            - deploy-staging
-          filters:
-            <<: *default_filters
-      - deploy-production:
-          requires:
-            - hold
-          filters:
-            <<: *default_filters
+      # - deploy-staging:
+      #     requires:
+      #       - build
+      #     filters:
+      #       <<: *default_filters
+      # - hold:
+      #     type: approval
+      #     requires:
+      #       - deploy-staging
+      #     filters:
+      #       <<: *default_filters
+      # - deploy-production:
+      #     requires:
+      #       - hold
+      #     filters:
+      #       <<: *default_filters
