@@ -41,6 +41,7 @@ jobs:
     docker:
       *default_images
     steps:
+      - checkout
       - run:
           <<: *setup_command
       - run: gcloud container builds submit --config=cloudbuild.yaml --substitutions REVISION_ID=$TAG_NAME .
