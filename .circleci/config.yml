@@ -49,7 +49,7 @@ jobs:
       # - run: gcloud docker tag us.gcr.io/${PROJECT_ID}/hello:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/go_sample:latest
       # - run: gcloud docker push us.gcr.io/${PROJECT_ID}/go_sample
       - run: gcloud container builds submit --config=cloudbuild.yaml --substitutions REVISION_ID=$CIRCLE_SHA1 .
-      - run: kubectl patch deployment web -p '{"spec":{"template":{"spec":{"containers":[{"name":"go-sample","image":"gcr.io/ci-sample-198806/go_sample:'"$CIRCLE_SHA1"'"}]}}}}'
+      - run: kubectl patch deployment web -p '{"spec":{"template":{"spec":{"containers":[{"name":"go-sample","image":"gcr.io/build-images/go_sample:'"$CIRCLE_SHA1"'"}]}}}}'
       # - run:
       #     name: Deploy Master to GKE
       #     command: ./deploy.sh

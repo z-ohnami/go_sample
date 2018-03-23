@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: go-sample
-          image: gcr.io/ci-sample-198806/go_sample:v1
+          image: gcr.io/build-images/go_sample:1234
           imagePullPolicy: Always
           ports:
             - containerPort: 80

@@ -6,7 +6,7 @@ import (
 )
 
 func hello(w http.ResponseWriter, r *http.Request) {
-    io.WriteString(w, "こんにちは と こんばんは の間にはセイハロー")
+    io.WriteString(w, "変更管理を短くする")
 }
 
 func main() {
